@@ -8,6 +8,7 @@ production:
   expires:
   proxy:
   thumb_folder:
+  region:
 
 development:
   access_key_id:
@@ -19,6 +20,7 @@ development:
   expires:
   proxy:
   thumb_folder:
+  region:
 
 # Uncomment this to run plugin tests with standart redmine script
 # test:
