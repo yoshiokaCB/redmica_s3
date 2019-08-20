@@ -4,7 +4,6 @@ production:
   bucket:
   folder:
   endpoint:
-  secure:
   private:
   expires:
   proxy:
@@ -16,7 +15,6 @@ development:
   bucket:
   folder:
   endpoint:
-  secure:
   private:
   expires:
   proxy:
