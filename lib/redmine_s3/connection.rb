@@ -22,27 +22,12 @@ module RedmineS3
     }
 
     class << self
-      def establish_connection
-        load_options unless @@s3_options[:access_key_id] && @@s3_options[:secret_access_key]
-        options = {
-          access_key_id:      @@s3_options[:access_key_id],
-          secret_access_key:  @@s3_options[:secret_access_key]
-        }
-        if endpoint.present?
-          options[:endpoint] = endpoint
-        elsif region.present?
-          options[:region] = region
-        end
-        @@conn = Aws::S3::Resource.new(options)
-      end
-
       def bucket
-        load_options unless @@s3_options[:bucket]
-        @@s3_options[:bucket]
+        conn.bucket(bucket_name)
       end
 
       def create_bucket
-        bucket = conn.bucket(self.bucket)
+        bucket = self.bucket
         bucket.create unless bucket.exists?
       end
 
@@ -108,6 +93,20 @@ module RedmineS3
 
 # private
 
+      def establish_connection
+        load_options unless @@s3_options[:access_key_id] && @@s3_options[:secret_access_key]
+        options = {
+          access_key_id:      @@s3_options[:access_key_id],
+          secret_access_key:  @@s3_options[:secret_access_key]
+        }
+        if endpoint.present?
+          options[:endpoint] = endpoint
+        elsif region.present?
+          options[:region] = region
+        end
+        @@conn = Aws::S3::Resource.new(options)
+      end
+
       def load_options
         file = ERB.new( File.read(File.join(Rails.root, 'config', 's3.yml')) ).result
         YAML::load( file )[Rails.env].each do |key, value|
@@ -117,6 +116,11 @@ module RedmineS3
 
       def conn
         @@conn || establish_connection
+      end
+
+      def bucket_name
+        load_options unless @@s3_options[:bucket]
+        @@s3_options[:bucket]
       end
 
       def endpoint
@@ -136,13 +140,11 @@ module RedmineS3
       end
 
       def object(filename, target_folder = self.folder)
-        bucket_name = self.bucket
-        object_name = File.join([target_folder.presence, filename.presence].compact)
-        bucket = conn.bucket(bucket_name)
-        bucket.object(object_name)
+        object_nm = File.join([target_folder.presence, filename.presence].compact)
+        bucket.object(object_nm)
       end
     end
 
-    private_class_method  :load_options, :conn, :endpoint, :region, :expires, :private?, :object
+    private_class_method  :establish_connection, :load_options, :conn, :bucket_name, :endpoint, :region, :expires, :private?, :object
   end
 end

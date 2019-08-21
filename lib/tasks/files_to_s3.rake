@@ -51,8 +51,7 @@ namespace :redmine_s3 do
     end
 
     # init the connection, and grab the bucket
-    conn = RedmineS3::Connection.establish_connection
-    bucket = conn.bucket(RedmineS3::Connection.bucket)
+    bucket = RedmineS3::Connection.bucket
 
     # create some threads to start syncing all of the queued files with s3
     threads = Array.new
