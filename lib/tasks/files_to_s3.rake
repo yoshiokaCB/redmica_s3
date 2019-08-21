@@ -16,12 +16,12 @@ namespace :redmine_s3 do
     end
 
     # updates a single file on s3
-    def update_file_on_s3(data, bucket)
+    def update_file_on_s3(data)
       source   = data[:source]
       target   = data[:target]
       filename = data[:filename]
       return if target.nil?
-      object = bucket.object(File.join([RedmineS3::Connection.folder, target].compact))
+      object = RedmineS3::Connection.object(target)
       # get the file modified time, which will stay nil if the file doesn't exist yet
       # we could check if the file exists, but this saves a head request
       s3_mtime = object.last_modified rescue nil
@@ -50,15 +50,12 @@ namespace :redmine_s3 do
       file_q << s3_file_data(file) if File.file? file
     end
 
-    # init the connection, and grab the bucket
-    bucket = RedmineS3::Connection.bucket
-
     # create some threads to start syncing all of the queued files with s3
     threads = Array.new
     8.times do
       threads << Thread.new do
         while !file_q.empty?
-          update_file_on_s3(file_q.pop, bucket)
+          update_file_on_s3(file_q.pop)
         end
       end
     end

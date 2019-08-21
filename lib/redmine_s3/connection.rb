@@ -22,12 +22,8 @@ module RedmineS3
     }
 
     class << self
-      def bucket
-        conn.bucket(bucket_name)
-      end
-
       def create_bucket
-        bucket = self.bucket
+        bucket = own_bucket
         bucket.create unless bucket.exists?
       end
 
@@ -91,6 +87,11 @@ module RedmineS3
         object.data
       end
 
+      def object(filename, target_folder = self.folder)
+        object_nm = File.join([target_folder.presence, filename.presence].compact)
+        own_bucket.object(object_nm)
+      end
+
 # private
 
       def establish_connection
@@ -118,7 +119,11 @@ module RedmineS3
         @@conn || establish_connection
       end
 
-      def bucket_name
+      def own_bucket
+        conn.bucket(bucket)
+      end
+
+      def bucket
         load_options unless @@s3_options[:bucket]
         @@s3_options[:bucket]
       end
@@ -138,13 +143,8 @@ module RedmineS3
       def private?
         @@s3_options[:private]
       end
-
-      def object(filename, target_folder = self.folder)
-        object_nm = File.join([target_folder.presence, filename.presence].compact)
-        bucket.object(object_nm)
-      end
     end
 
-    private_class_method  :establish_connection, :load_options, :conn, :bucket_name, :endpoint, :region, :expires, :private?, :object
+    private_class_method  :establish_connection, :load_options, :conn, :own_bucket, :bucket, :endpoint, :region, :expires, :private?
   end
 end
