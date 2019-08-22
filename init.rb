@@ -1,3 +1,4 @@
+require 'redmine'
 require 'redmine_s3'
 
 require_dependency 'redmine_s3_hooks'
