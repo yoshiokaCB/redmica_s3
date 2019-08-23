@@ -53,13 +53,20 @@ module RedmineS3
         ).presence
       end
 
-      def put(disk_filename, original_filename, data, content_type='application/octet-stream', target_folder = self.folder)
+      def put(disk_filename, original_filename, data, content_type = 'application/octet-stream', opt = {})
+        target_folder = opt[:target_folder] || self.folder
+        digest = opt[:digest].presence
         options = {
           body:                 data,
           content_disposition:  "inline; filename=#{ERB::Util.url_encode(original_filename)}",
         }
         options[:acl] = 'public-read' unless private?
         options[:content_type] = content_type if content_type
+        if digest
+          options[:metadata] = {
+            'digest' => digest,
+          }
+        end
 
         object = object(disk_filename, target_folder)
         object.put(options)

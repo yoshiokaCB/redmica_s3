@@ -56,7 +56,7 @@ module RedmineS3
                 end
               img = MiniMagick::Image.read(convert_output)
 
-              RedmineS3::Connection.put(target, File.basename(target), img.to_blob, img.mime_type, target_folder)
+              RedmineS3::Connection.put(target, File.basename(target), img.to_blob, img.mime_type, {target_folder: target_folder})
             rescue => e
               Rails.logger.error("Creating thumbnail failed (#{e.message}):")
               return nil
