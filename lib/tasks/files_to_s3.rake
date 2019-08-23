@@ -28,7 +28,7 @@ namespace :redmine_s3 do
       s3_mtime = object.last_modified rescue nil
 
       # put it on s3 if the file has been updated or it doesn't exist on s3 yet
-      if s3_mtime.nil? || s3_mtime < File.mtime(source)
+      if s3_mtime.nil? || File.mtime(source) > s3_mtime
         filename = data[:filename]
         digest = data[:digest].presence
         File.open(source, 'rb') do |file_obj|
