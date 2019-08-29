@@ -7,6 +7,13 @@ module RedmineS3
     end
 
     class_methods do
+      def batch_delete!(target_prefix = nil)
+        prefix = File.join(RedmineS3::Connection.thumb_folder, "#{target_prefix}")
+
+        bucket = RedmineS3::Connection.__send__(:own_bucket)
+        bucket.objects({prefix: prefix}).batch_delete!
+        return
+      end
     end
 
     module PrependMethods
@@ -33,7 +40,7 @@ module RedmineS3
             open(url, 'rb') do |f| raw_data = f.read end
             mime_type = MimeMagic.by_magic(raw_data).try(:type)
             return nil if mime_type.nil?
-            return nil if !ALLOWED_TYPES.include? mime_type
+            return nil if !Redmine::Thumbnail::ALLOWED_TYPES.include? mime_type
             return nil if is_pdf && mime_type != "application/pdf"
 
             size_option = "#{size}x#{size}>"
