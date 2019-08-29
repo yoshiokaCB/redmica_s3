@@ -99,6 +99,16 @@ module RedmineS3
         own_bucket.object(object_nm)
       end
 
+      def move_object(src_filename, dest_filename, target_folder = self.folder)
+        src_object = object(src_filename, target_folder)
+        return false  unless src_object.exists?
+        dest_object = object(dest_filename, target_folder)
+        return false  if dest_object.exists?
+
+        src_object.move_to(dest_object)
+        true
+      end
+
 # private
 
       def establish_connection
