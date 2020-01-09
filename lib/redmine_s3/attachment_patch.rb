@@ -210,6 +210,10 @@ module RedmineS3
       end
     end
 
+    def raw_data
+      self.s3_object.get.body.read
+    end
+
   protected
 
     def s3_object(reload = true)
