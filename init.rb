@@ -1,8 +1,7 @@
 require 'redmine_s3'
 
-require_dependency 'redmine_s3_hooks'
-
 Redmine::Plugin.register :redmine_s3 do
+  requires_redmine version_or_higher: '4.1.0'
   name 'S3'
   author 'Chris Dell'
   description 'Use Amazon S3 as a storage engine for attachments'
