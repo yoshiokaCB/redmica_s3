@@ -19,6 +19,11 @@ module RedmicaS3
       end
 
       module ClassMethods
+        # Claims a unique ASCII or hashed filename, yields the open file handle
+        def create_diskfile(filename, directory=nil, &block)
+          raise NoMethodError, "#{self}.#{__method__} cannot be used with redmica_s3 plugin."
+        end
+
         # Returns an ASCII or hashed filename that do not
         # exists yet in the given subdirectory
         def disk_filename(filename, directory=nil)
