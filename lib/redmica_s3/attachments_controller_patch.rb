@@ -61,9 +61,20 @@ module RedmicaS3
       def thumbnail
         begin
           raise unless @attachment.thumbnailable?
-          digest, raw_data = @attachment.thumbnail(:size => params[:size])
+          cache_key = "#{ENV['RAILS_DB']}/attachments/thumbnail/#{params[:id]}/#{params[:filename]}"
+          p 'cache key ------------------------------------------------'
+          p cache_key
+          digest, raw_data = Rails.cache.fetch(cache_key, expired_in: 30.minutes) do
+            @attachment.thumbnail(:size => params[:size])
+          end
+          # digest, raw_data = @attachment.thumbnail(:size => params[:size])
           raise unless raw_data
           if stale?(etag: digest, template: false)
+
+          # if stale?(etag: @attachment.thumbnail_path(params[:size].presence || Setting.thumbnails_size), template: false)
+          #   digest, raw_data = @attachment.thumbnail(:size => params[:size])
+          #   raise unless raw_data
+
             send_data raw_data,
               filename: filename_for_content_disposition(@attachment.filename),
               type: detect_content_type(@attachment, true),
