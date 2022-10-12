@@ -61,9 +61,10 @@ module RedmicaS3
       def thumbnail
         begin
           raise unless @attachment.thumbnailable?
-          cache_key = "#{ENV['RAILS_DB']}/attachments/thumbnail/#{params[:id]}/#{params[:filename]}"
+          cache_key = "#{ENV['RAILS_DB']}/attachments/thumbnail/#{params[:id]}"
           p 'cache key ------------------------------------------------'
           p cache_key
+          p params
           digest, raw_data = Rails.cache.fetch(cache_key, expired_in: 30.minutes) do
             @attachment.thumbnail(:size => params[:size])
           end
